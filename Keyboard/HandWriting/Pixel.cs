@@ -30,7 +30,7 @@ using System.Runtime.InteropServices;
 namespace HandWriting
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct Pixel
+    public class Pixel
     {
         public static Pixel Zero { get { return new Pixel(0, 0); } }
 
@@ -87,14 +87,47 @@ namespace HandWriting
             return X > minBounds.X && Y > minBounds.Y && X < maxBounds.X && Y < maxBounds.Y;
         }
 
+        public bool Equals(Pixel other)
+        {
+            if (other == null) {
+                return false;
+            }
+            if (object.ReferenceEquals(this, other)) {
+                return true;
+            }
+            return X == other.X && Y == other.Y;
+        }
+
         public static bool operator ==(Pixel a, Pixel b)
         {
-            return a.Equals(b);
+            if (object.ReferenceEquals(a, b)) {
+                return true;
+            }
+            if ((object)a == null || (object)b == null) {
+                return false;
+            }
+            return a.Equals(other: b);
         }
 
         public static bool operator !=(Pixel a, Pixel b)
         {
-            return !a.Equals(b);
+            return !(a == b);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj != null) {
+                Pixel other = obj as Pixel;
+                if (other != null) {
+                    return Equals((Pixel)obj);
+                }
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Y * 97979797 + X;
         }
     }
 

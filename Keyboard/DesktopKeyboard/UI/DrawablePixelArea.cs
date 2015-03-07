@@ -33,7 +33,9 @@ namespace DesktopKeyboard
 {
     public class DrawablePixelArea : PixelArea
     {
-        private Pixel previousPoint = default(Pixel);
+        private Pixel previousPoint = Pixel.Zero;
+
+        public uint ChangeCounter { get; private set; }
 
         public DrawablePixelArea(Form reference, RelativeBounds bounds)
             : base(reference: reference, bounds: bounds)
@@ -41,6 +43,8 @@ namespace DesktopKeyboard
             Application.AddMessageFilter(new MouseMessageFilter());
             MouseMessageFilter.MouseMove += new MouseEventHandler(OnMouseMove);
             MouseMessageFilter.LeftButtonUp += new MouseEventHandler(OnLeftButtonUp);
+
+            ChangeCounter = 1;
         }
 
         void OnLeftButtonUp(object sender, MouseEventArgs e)
@@ -60,7 +64,9 @@ namespace DesktopKeyboard
                 if (point.IsBetween(Pixel.Zero, Points.Size)) {
                     previousPoint = point;
 
-                    if (_previousPoint != Pixel.Zero && (point - _previousPoint).Length < 100) {
+                    ChangeCounter++;
+
+                    if (_previousPoint != Pixel.Zero && (point - _previousPoint).Length < 500) {
                         Pixel diff = _previousPoint - point;
                         int steps = Math.Max(diff.Absolute.X, diff.Absolute.Y);
                         Console.WriteLine("steps: " + steps);
@@ -68,7 +74,7 @@ namespace DesktopKeyboard
                         for (int step = 0; step <= steps; step++) {
                             Pixel interPoint = new Pixel(_previousPoint.X + (int)Math.Round(dx), _previousPoint.Y + (int)Math.Round(dy));
                             if (interPoint.IsBetween(Pixel.Zero, Points.Size)) {
-                                Points.Add(interPoint);
+                                Points.Add(interPoint.InMap(Points).Neighbors());
                                 Console.WriteLine("  " + interPoint.ToString());
                             } else {
                                 previousPoint = Pixel.Zero;
@@ -77,10 +83,10 @@ namespace DesktopKeyboard
                             dx += (double)diff.X / (double)steps;
                             dy += (double)diff.Y / (double)steps;
                         }
-                        Points.Add(point);
+                        Points.Add(point.InMap(Points).Neighbors());
                         Console.WriteLine(point.ToString());
                     } else {
-                        Points.Add(point);
+                        Points.Add(point.InMap(Points).Neighbors());
                         Console.WriteLine(point.ToString());
                     }
 

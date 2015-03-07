@@ -1,5 +1,5 @@
 ﻿//
-// Program.cs
+// PixelExtensions.cs
 //
 // Author:
 //       Tobias Schulz <tobiasschulz.code@outlook.de>
@@ -25,25 +25,29 @@
 // THE SOFTWARE.
 //
 using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Windows.Forms;
-using HandWriting;
+using System.Collections.Generic;
 
-namespace DesktopKeyboard
+namespace HandWriting
 {
-    public class Program
+    public static class PixelExtensions
     {
-        public static void Main()
+        public static int IndexInArray(int x, int y, int width)
         {
-            Log.LogHandler += (type, message) => Console.WriteLine("[" + type + "] " + message);
+            return y * width + x;
+        }
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+        public static IEnumerable<Pixel> PixelCombinations(int width, int height)
+        {
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    yield return new BoundedPixel(x: x, y: y, width: width, height: height);
+                }
+            }
+        }
 
-            Size size = new Size(width: 750, height: 270);
-            Point location = new Point(400, 450);
-            Application.Run(new MainForm(size, location));
+        public static BoundedPixel InMap(this Pixel pixel, PixelMap pixelMap)
+        {
+            return new BoundedPixel(x: pixel.X, y: pixel.Y, width: pixelMap.Width, height: pixelMap.Height);
         }
     }
 }

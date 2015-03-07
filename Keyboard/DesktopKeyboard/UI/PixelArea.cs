@@ -52,10 +52,10 @@ namespace DesktopKeyboard
         public void OnPaint(Graphics g)
         {
             Pen pen = new Pen(Color.Black, 1);
-            g.DrawLine(pen, new Point(bounds.TopLeft.X, bounds.TopLeft.Y), new Point(bounds.BottomRight.X, bounds.TopLeft.Y));
-            g.DrawLine(pen, new Point(bounds.TopLeft.X, bounds.TopLeft.Y), new Point(bounds.TopLeft.X, bounds.BottomRight.Y));
-            g.DrawLine(pen, new Point(bounds.BottomRight.X, bounds.BottomRight.Y), new Point(bounds.BottomRight.X, bounds.TopLeft.Y));
-            g.DrawLine(pen, new Point(bounds.BottomRight.X, bounds.BottomRight.Y), new Point(bounds.TopLeft.X, bounds.BottomRight.Y));
+            g.DrawLine(pen, new Point(bounds.TopLeft.X - 1, bounds.TopLeft.Y - 1), new Point(bounds.BottomRight.X + 1, bounds.TopLeft.Y - 1));
+            g.DrawLine(pen, new Point(bounds.TopLeft.X - 1, bounds.TopLeft.Y - 1), new Point(bounds.TopLeft.X - 1, bounds.BottomRight.Y + 1));
+            g.DrawLine(pen, new Point(bounds.BottomRight.X + 1, bounds.BottomRight.Y + 1), new Point(bounds.BottomRight.X + 1, bounds.TopLeft.Y - 1));
+            g.DrawLine(pen, new Point(bounds.BottomRight.X + 1, bounds.BottomRight.Y + 1), new Point(bounds.TopLeft.X - 1, bounds.BottomRight.Y + 1));
 
             Brush black = Brushes.Black;
 
@@ -64,7 +64,7 @@ namespace DesktopKeyboard
             foreach (Pixel point in Points.GetPixels(value: true)) {
                 int x = (int)((float)point.X * scale.X) + bounds.TopLeft.X;
                 int y = (int)((float)point.Y * scale.Y) + bounds.TopLeft.Y;
-                g.FillRectangle(black, x, y, scale.X, scale.Y);
+                g.FillRectangle(black, x - 1, y - 1, (int)Math.Ceiling(scale.X) + 2, (int)Math.Ceiling(scale.Y) + 2);
             }
         }
     }

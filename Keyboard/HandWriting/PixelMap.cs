@@ -34,6 +34,8 @@ namespace HandWriting
 {
     public class PixelMap
     {
+        public static Pixel NORMALIZED_SIZE = new Pixel(10, 10);
+
         public int Width { get; private set; }
 
         public int Height { get; private set; }
@@ -51,16 +53,33 @@ namespace HandWriting
 
         public bool this [Pixel pixel] {
             get {
-                return pixels[pixel.Y * Width + pixel.X];
+                return Get(x: pixel.X, y: pixel.Y);
             }
             set {
-                pixels[pixel.Y * Width + pixel.X] = value;
+                Set(x: pixel.X, y: pixel.Y, value: value);
             }
+        }
+
+        public bool Get(int x, int y)
+        {
+            return pixels[PixelExtensions.IndexInArray(x: x, y: y, width: Width)];
+        }
+
+        public void Set(int x, int y, bool value)
+        {
+            pixels[PixelExtensions.IndexInArray(x: x, y: y, width: Width)] = value;
         }
 
         public void Add(Pixel pixel)
         {
             this[pixel] = true;
+        }
+
+        public void Add(IEnumerable<Pixel> pixels)
+        {
+            foreach (Pixel pixel in pixels) {
+                this[pixel] = true;
+            }
         }
 
         public void Remove(Pixel pixel)
@@ -90,11 +109,11 @@ namespace HandWriting
             }
         }
 
-        public IEnumerable<Pixel> GetPixels(bool value)
+        public IEnumerable<BoundedPixel> GetPixels(bool value)
         {
             for (int y = 0; y < Height; ++y) {
                 for (int x = 0; x < Width; ++x) {
-                    Pixel p = new Pixel(x, y);
+                    BoundedPixel p = new BoundedPixel(x, y, width: Width, height: Height);
                     bool b = this[p];
                     if (b == value) {
                         yield return p;
@@ -103,7 +122,7 @@ namespace HandWriting
             }
         }
 
-        public PixelMap Trim()
+        public PixelMap Trim(bool test = false)
         {
             if (IsEmpty) {
                 return new PixelMap(0, 0);
@@ -127,15 +146,122 @@ namespace HandWriting
                     maxY = pixel.Y;
             }
 
-            PixelMap trimmed = new PixelMap(maxX - minX + 1, maxY - minY + 1);
+            if (test) {
+                int treshold = currentPixels.Length / 100 * 10;
+
+                removeClutter(description: "minX -> maxX",
+                    dim1Start: ref minX, dim1End: maxX,
+                    dim2Start: minY, dim2End: maxY, direction: +1,
+                    treshold: treshold, get: Get);
+                removeClutter(description: "maxX -> minX",
+                    dim1Start: ref maxX, dim1End: minX,
+                    dim2Start: minY, dim2End: maxY, direction: -1,
+                    treshold: treshold, get: Get);
+                removeClutter(description: "minY -> maxY",
+                    dim1Start: ref minY, dim1End: maxY,
+                    dim2Start: minX, dim2End: maxX, direction: +1,
+                    treshold: treshold, get: (x, y) => Get(x: y, y: x));
+                removeClutter(description: "maxY -> minY",
+                    dim1Start: ref maxY, dim1End: minY,
+                    dim2Start: minX, dim2End: maxX, direction: -1,
+                    treshold: treshold, get: (x, y) => Get(x: y, y: x));
+            }
+
+            PixelMap trimmed = new PixelMap(width: maxX - minX + 1, height: maxY - minY + 1);
 
             foreach (Pixel pixel in currentPixels) {
-                Log.Debug("trimmed.Size=" + trimmed.Size + ", add=" + new Pixel(pixel.X - minX, pixel.Y - minY));
-                trimmed[new Pixel(pixel.X - minX, pixel.Y - minY)] = true;
+                if (pixel.X >= minX && pixel.X <= maxX && pixel.Y >= minY && pixel.Y <= maxY) {
+                    //Log.Debug("trimmed.Size=" + trimmed.Size + ", add=" + new Pixel(x: pixel.X - minX, y: pixel.Y - minY));
+                    trimmed[new Pixel(x: pixel.X - minX, y: pixel.Y - minY)] = true;
+                }
             }
 
             return trimmed;
         }
+
+        private void removeClutter(string description, ref int dim1Start, int dim1End, int dim2Start, int dim2End, int direction, int treshold, Func<int, int, bool> get)
+        {
+            description = "removeClutter[" + description + "]";
+
+            Debug.Assert(dim2Start < dim2End, description + ": dim2Start must always be smaller than dim2End (dim2Start=" + dim2Start + ",dim2End=" + dim2End + ")");
+
+            Func<double,double,bool> isSmaller = (a, b) => direction > 0 ? (a < b) : (a > b);
+            for (int x = dim1Start, pcSum = 0; isSmaller(x, dim1End) && isSmaller(x - dim1Start, 0.15 * (dim1End - dim1Start)); x += direction) {
+                int pc = 0;
+                for (int y = dim2Start; y < dim2End; ++y) {
+                    if (get(x, y) == true) {
+                        pc++;
+                    }
+                }
+                pcSum += pc;
+                Log.Debug(description + ": threshold row: x=", x, ", pcSum=", pcSum, ", pc=", pc);
+                if (pcSum > treshold || pc > (dim2End - dim2Start) * 0.25) {
+                    break;
+                }
+                dim1Start = x;
+            }
+        }
+
+        public PixelMap Normalize()
+        {
+            if (Size == NORMALIZED_SIZE) {
+                return this;
+            }
+
+            PixelMap normalized = new PixelMap(width: NORMALIZED_SIZE.X, height: NORMALIZED_SIZE.Y);
+
+            if (IsEmpty) {
+                return normalized;
+            }
+
+            BoundedPixel[] currentPixels = GetPixels(value: true).ToArray();
+
+            int[] densities = new int[normalized.Width * normalized.Height];
+
+            foreach (BoundedPixel pixel in currentPixels) {
+                densities[pixel.ScaleTo(otherMap: normalized).IndexInArray] += 1;
+            }
+
+            int[] neighbors = new int[normalized.Width * normalized.Height];
+
+            Pixel[] normalizedPixelCombinations = PixelExtensions.PixelCombinations(width: normalized.Width, height: normalized.Height).ToArray();
+            foreach (BoundedPixel pixel in normalizedPixelCombinations) {
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dy = -1; dy <= 1; dy++) {
+                        if (!(dx == 0 && dy == 0)) {
+                            BoundedPixel neighbor = new Pixel(x: pixel.X + dx, y: pixel.Y + dy).InMap(normalized);
+                            //Log.Debug("pixel: ", pixel, ", neighbor: ", neighbor);
+                            if (neighbor.IsInValidRange) {
+                                if (densities[neighbor.IndexInArray] > 0) {
+                                    neighbors[neighbor.IndexInArray]++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            double averageDensity = densities.Where(d => d > 0).Average();
+
+            foreach (BoundedPixel pix in normalizedPixelCombinations) {
+                int density = densities[pix.IndexInArray];
+                int neighborCount = neighbors[pix.IndexInArray];
+                if (density >= averageDensity * 0.7 || neighborCount > 1) {
+                    normalized[new Pixel(x: pix.X, y: pix.Y)] = true;
+                }
+            }
+
+            /*
+            foreach (Pixel pixel in currentPixels) {
+                //Log.Debug("trimmed.Size=" + trimmed.Size + ", add=" + new Pixel(pixel.X - minX, pixel.Y - minY));
+                int normalizedX = (int)Math.Floor((float)pixel.X / (float)Width * (float)normalized.Width);
+                int normalizedY = (int)Math.Floor((float)pixel.Y / (float)Height * (float)normalized.Height);
+                normalized[new Pixel(x: normalizedX, y: normalizedY)] = true;
+            }*/
+
+            return normalized;
+        }
+
     }
 }
 

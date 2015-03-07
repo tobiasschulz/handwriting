@@ -40,6 +40,8 @@ namespace DesktopKeyboard
 
         private readonly DrawablePixelArea drawArea;
         private readonly PixelArea debugArea;
+        private readonly PixelArea debugArea2;
+        private uint previousDrawAreaChangeCounter;
 
         public MainForm(Size size, Point location)
         {
@@ -47,8 +49,9 @@ namespace DesktopKeyboard
             windowSize = size;
             windowLocation = location;
 
-            drawArea = new DrawablePixelArea(reference: this, bounds: new RelativeBounds(reference: this, left: 20, top: 20, right: -260, bottom: -40));
-            debugArea = new PixelArea(reference: this, bounds: new RelativeBounds(reference: this, left: 260, top: 20, right: -20, bottom: -40));
+            drawArea = new DrawablePixelArea(reference: this, bounds: new RelativeBounds(reference: this, left: 20, top: 20, right: -520, bottom: -40));
+            debugArea = new PixelArea(reference: this, bounds: new RelativeBounds(reference: this, left: 260, top: 20, right: -260, bottom: -40));
+            debugArea2 = new PixelArea(reference: this, bounds: new RelativeBounds(reference: this, left: 520, top: 20, right: -20, bottom: -40));
 
             ResizeRedraw = true;
             Paint += new PaintEventHandler(OnPaint);
@@ -67,19 +70,26 @@ namespace DesktopKeyboard
 
             drawArea.Load();
             debugArea.Load();
+            debugArea2.Load();
 
 
 
             System.Windows.Forms.Timer timer1 = new System.Windows.Forms.Timer();
-            timer1.Interval = 1000;//5 minutes
+            timer1.Interval = 1000;
             timer1.Tick += new System.EventHandler(timer1_Tick);
             timer1.Start();
         }
 
+
+
         private void timer1_Tick(object sender, EventArgs e)
         {
-            debugArea.Points = drawArea.Points.Trim();
-            this.Refresh();
+            if (drawArea.ChangeCounter != previousDrawAreaChangeCounter) {
+                previousDrawAreaChangeCounter = drawArea.ChangeCounter;
+                debugArea.Points = drawArea.Points.Trim().Normalize();
+                debugArea2.Points = drawArea.Points.Trim(test: true).Normalize();
+                this.Refresh();
+            }
         }
 
         void OnPaint(object sender, PaintEventArgs e)
@@ -100,6 +110,7 @@ namespace DesktopKeyboard
 
                 drawArea.OnPaint(g);
                 debugArea.OnPaint(g);
+                debugArea2.OnPaint(g);
 
             }
         }
