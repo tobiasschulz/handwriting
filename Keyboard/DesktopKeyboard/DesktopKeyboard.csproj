@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2A4B0AC1-6673-49C8-ABD7-C72F6D400905}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>DesktopKeyboard</RootNamespace>
+    <AssemblyName>DesktopKeyboard</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Util\ConfigFile.cs" />
+    <Compile Include="Util\IniFile.cs" />
+    <Compile Include="UI\DebugForm.cs" />
+    <Compile Include="UI\DrawablePixelArea.cs" />
+    <Compile Include="UI\ISize.cs" />
+    <Compile Include="UI\MainForm.cs" />
+    <Compile Include="UI\PixelArea.cs" />
+    <Compile Include="UI\PixelExtensions.cs" />
+    <Compile Include="UI\RelativeBounds.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HandWriting\HandWriting.csproj">
+      <Project>{275D93B7-4010-4226-94D6-01057422E313}</Project>
+      <Name>HandWriting</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Util\" />
+    <Folder Include="UI\" />
+  </ItemGroup>
+</Project>
