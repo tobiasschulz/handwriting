@@ -49,6 +49,17 @@ namespace HandWriting
         {
             return new BoundedPixel(x: pixel.X, y: pixel.Y, width: pixelMap.Width, height: pixelMap.Height);
         }
+
+        public static T Clamp<T>(this T value, T max, T min)
+            where T : System.IComparable<T>
+        {     
+            T result = value;
+            if (value.CompareTo(max) > 0)
+                result = max;
+            if (value.CompareTo(min) < 0)
+                result = min;
+            return result;
+        }
     }
 }
 

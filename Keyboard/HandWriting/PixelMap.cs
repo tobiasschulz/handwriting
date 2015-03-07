@@ -146,25 +146,37 @@ namespace HandWriting
                     maxY = pixel.Y;
             }
 
-            if (test) {
-                int treshold = currentPixels.Length / 100 * 10;
+            if (maxX - minX < 0.33 * Width) {
+                minX = (int)(minX - 0.25 * Width).Clamp(min: 0, max: Width);
+                maxX = (int)(maxX + 0.25 * Width).Clamp(min: 0, max: Width);
+            }
+            if (maxY - minY < 0.33 * Height) {
+                minY = (int)(minY - 0.25 * Height).Clamp(min: 0, max: Height);
+                maxY = (int)(maxY + 0.25 * Height).Clamp(min: 0, max: Height);
+            }
 
-                removeClutter(description: "minX -> maxX",
-                    dim1Start: ref minX, dim1End: maxX,
-                    dim2Start: minY, dim2End: maxY, direction: +1,
-                    treshold: treshold, get: Get);
-                removeClutter(description: "maxX -> minX",
-                    dim1Start: ref maxX, dim1End: minX,
-                    dim2Start: minY, dim2End: maxY, direction: -1,
-                    treshold: treshold, get: Get);
-                removeClutter(description: "minY -> maxY",
-                    dim1Start: ref minY, dim1End: maxY,
-                    dim2Start: minX, dim2End: maxX, direction: +1,
-                    treshold: treshold, get: (x, y) => Get(x: y, y: x));
-                removeClutter(description: "maxY -> minY",
-                    dim1Start: ref maxY, dim1End: minY,
-                    dim2Start: minX, dim2End: maxX, direction: -1,
-                    treshold: treshold, get: (x, y) => Get(x: y, y: x));
+            if (test) {
+                double aspectRatio = (double)(maxX - minX) / (double)(maxY - minY);
+                if (aspectRatio >= 0.5 && aspectRatio <= 2) {
+                    int treshold = currentPixels.Length / 100 * 10;
+
+                    removeClutter(description: "minX -> maxX",
+                        dim1Start: ref minX, dim1End: maxX,
+                        dim2Start: minY, dim2End: maxY, direction: +1,
+                        treshold: treshold, get: Get);
+                    removeClutter(description: "maxX -> minX",
+                        dim1Start: ref maxX, dim1End: minX,
+                        dim2Start: minY, dim2End: maxY, direction: -1,
+                        treshold: treshold, get: Get);
+                    removeClutter(description: "minY -> maxY",
+                        dim1Start: ref minY, dim1End: maxY,
+                        dim2Start: minX, dim2End: maxX, direction: +1,
+                        treshold: treshold, get: (x, y) => Get(x: y, y: x));
+                    removeClutter(description: "maxY -> minY",
+                        dim1Start: ref maxY, dim1End: minY,
+                        dim2Start: minX, dim2End: maxX, direction: -1,
+                        treshold: treshold, get: (x, y) => Get(x: y, y: x));
+                }
             }
 
             PixelMap trimmed = new PixelMap(width: maxX - minX + 1, height: maxY - minY + 1);
@@ -189,6 +201,7 @@ namespace HandWriting
             for (int x = dim1Start, pcSum = 0; isSmaller(x, dim1End) && isSmaller(x - dim1Start, 0.15 * (dim1End - dim1Start)); x += direction) {
                 int pc = 0;
                 for (int y = dim2Start; y < dim2End; ++y) {
+                    Log.Debug("x=" + x + ", y=" + y + ", dim1=" + dim1Start + "-" + dim1End + ", dim2=" + dim2Start + "-" + dim2End);
                     if (get(x, y) == true) {
                         pc++;
                     }
