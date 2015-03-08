@@ -41,23 +41,34 @@ namespace DesktopKeyboard
             : base(reference: reference, bounds: bounds)
         {
             Application.AddMessageFilter(new MouseMessageFilter());
-            MouseMessageFilter.MouseMove += new MouseEventHandler(OnMouseMove);
+            //MouseMessageFilter.MouseMove += new MouseEventHandler(OnMouseMove);
             MouseMessageFilter.LeftButtonUp += new MouseEventHandler(OnLeftButtonUp);
 
             ChangeCounter = 1;
         }
 
-        void OnLeftButtonUp(object sender, MouseEventArgs e)
+        private Point previousMousePosition;
+
+        public void OnUpdate()
+        {
+            Point currentMousePosition = Control.MousePosition;
+            if (previousMousePosition != currentMousePosition) {
+                previousMousePosition = currentMousePosition;
+                OnMouseMove(currentMousePosition);
+            }
+        }
+
+        private void OnLeftButtonUp(object sender, MouseEventArgs e)
         {
             Console.WriteLine("OnLeftButtonUp");
             previousPoint = Pixel.Zero;
         }
 
-        void OnMouseMove(object sender, MouseEventArgs e)
+        private void OnMouseMove(Point mousePosition)
         {
             // Left button is down.
             if ((Control.MouseButtons & MouseButtons.Left) != 0) {
-                Pixel point = reference.PointToClient(e.Location).ToPixel() - bounds.TopLeft.ToPixel();
+                Pixel point = reference.PointToClient(mousePosition).ToPixel() - bounds.TopLeft.ToPixel();
                 Console.WriteLine("bounds.TopLeft:" + bounds.TopLeft + " point:" + point);
                 Pixel _previousPoint = previousPoint;
 
@@ -66,7 +77,7 @@ namespace DesktopKeyboard
 
                     ChangeCounter++;
 
-                    if (_previousPoint != Pixel.Zero && (point - _previousPoint).Length < 500) {
+                    if (false && _previousPoint != Pixel.Zero && (point - _previousPoint).Length < 500) {
                         Pixel diff = _previousPoint - point;
                         int steps = Math.Max(diff.Absolute.X, diff.Absolute.Y);
                         Console.WriteLine("steps: " + steps);

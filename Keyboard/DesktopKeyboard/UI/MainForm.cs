@@ -72,15 +72,17 @@ namespace DesktopKeyboard
             debugArea.Load();
             debugArea2.Load();
 
+            System.Windows.Forms.Timer frameTimer = new System.Windows.Forms.Timer();
+            frameTimer.Interval = 1000 / 60;
+            frameTimer.Tick += OnUpdate;
+            frameTimer.Start();
 
 
             System.Windows.Forms.Timer timer1 = new System.Windows.Forms.Timer();
             timer1.Interval = 1000;
-            timer1.Tick += new System.EventHandler(timer1_Tick);
+            timer1.Tick += timer1_Tick;
             timer1.Start();
         }
-
-
 
         private void timer1_Tick(object sender, EventArgs e)
         {
@@ -92,8 +94,13 @@ namespace DesktopKeyboard
             }
         }
 
+        void OnUpdate(object sender, EventArgs e)
+        {
+            drawArea.OnUpdate();
+        }
+
         void OnPaint(object sender, PaintEventArgs e)
-        {      
+        {
             using (Graphics g = e.Graphics) {
                 /*Pen pen = new Pen(Color.Black, 1);
                 pen.DashStyle = DashStyle.Dot;

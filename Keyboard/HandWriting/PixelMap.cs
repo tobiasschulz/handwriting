@@ -146,17 +146,18 @@ namespace HandWriting
                     maxY = pixel.Y;
             }
 
+            double aspectRatio = (double)(maxX - minX) / (double)(maxY - minY);
+
             if (maxX - minX < 0.33 * Width) {
-                minX = (int)(minX - 0.25 * Width).Clamp(min: 0, max: Width);
-                maxX = (int)(maxX + 0.25 * Width).Clamp(min: 0, max: Width);
+                minX = (int)(minX - 0.20 * Width).Clamp(min: 0, max: Width);
+                maxX = (int)(maxX + 0.20 * Width).Clamp(min: 0, max: Width);
             }
             if (maxY - minY < 0.33 * Height) {
-                minY = (int)(minY - 0.25 * Height).Clamp(min: 0, max: Height);
-                maxY = (int)(maxY + 0.25 * Height).Clamp(min: 0, max: Height);
+                minY = (int)(minY - 0.20 * Height).Clamp(min: 0, max: Height);
+                maxY = (int)(maxY + 0.20 * Height).Clamp(min: 0, max: Height);
             }
 
             if (test) {
-                double aspectRatio = (double)(maxX - minX) / (double)(maxY - minY);
                 if (aspectRatio >= 0.5 && aspectRatio <= 2) {
                     int treshold = currentPixels.Length / 100 * 10;
 
@@ -208,7 +209,7 @@ namespace HandWriting
                 }
                 pcSum += pc;
                 Log.Debug(description + ": threshold row: x=", x, ", pcSum=", pcSum, ", pc=", pc);
-                if (pcSum > treshold || pc > (dim2End - dim2Start) * 0.25) {
+                if (pcSum > treshold || pc > Math.Min(5, (dim2End - dim2Start) * 0.05)) {
                     break;
                 }
                 dim1Start = x;
@@ -259,7 +260,7 @@ namespace HandWriting
             foreach (BoundedPixel pix in normalizedPixelCombinations) {
                 int density = densities[pix.IndexInArray];
                 int neighborCount = neighbors[pix.IndexInArray];
-                if (density >= averageDensity * 0.7 || neighborCount > 1) {
+                if (density >= averageDensity * 0.7 || (density >= averageDensity * 0.35 && neighborCount > 1)) {
                     normalized[new Pixel(x: pix.X, y: pix.Y)] = true;
                 }
             }
