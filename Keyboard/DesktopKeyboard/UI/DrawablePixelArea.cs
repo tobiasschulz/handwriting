@@ -75,7 +75,7 @@ namespace DesktopKeyboard
                     previousPoint = point;
 
                     if (_previousPoint != Pixel.Zero && (point - _previousPoint).Length < 500) {
-                        Pixel diff = _previousPoint - point;
+                        Pixel diff = point - _previousPoint;
                         int steps = Math.Max(diff.Absolute.X, diff.Absolute.Y);
                         Log.Debug("steps: " + steps);
                         double dx = 0, dy = 0;
