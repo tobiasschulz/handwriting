@@ -35,6 +35,7 @@ namespace DesktopKeyboard
     {
         protected RelativeBounds bounds;
         protected Form reference;
+        protected Bitmap Backbuffer;
 
         public PixelMap Points { get; set; }
 
@@ -47,24 +48,51 @@ namespace DesktopKeyboard
         public void Load()
         {
             Points = new PixelMap(bounds.Size.Width, bounds.Size.Height);
+
+            reference.ResizeEnd += CreateBackBuffer;
+        }
+
+        public virtual void OnUpdate(ref bool invalidate)
+        {
+            Draw();
+        }
+
+        void CreateBackBuffer(object sender, EventArgs e)
+        {
+            if (Backbuffer != null)
+                Backbuffer.Dispose();
+
+            Backbuffer = new Bitmap(bounds.Size.Width, bounds.Size.Height);
         }
 
         public void OnPaint(Graphics g)
         {
-            Pen pen = new Pen(Color.Black, 1);
-            g.DrawLine(pen, new Point(bounds.TopLeft.X - 1, bounds.TopLeft.Y - 1), new Point(bounds.BottomRight.X + 1, bounds.TopLeft.Y - 1));
-            g.DrawLine(pen, new Point(bounds.TopLeft.X - 1, bounds.TopLeft.Y - 1), new Point(bounds.TopLeft.X - 1, bounds.BottomRight.Y + 1));
-            g.DrawLine(pen, new Point(bounds.BottomRight.X + 1, bounds.BottomRight.Y + 1), new Point(bounds.BottomRight.X + 1, bounds.TopLeft.Y - 1));
-            g.DrawLine(pen, new Point(bounds.BottomRight.X + 1, bounds.BottomRight.Y + 1), new Point(bounds.TopLeft.X - 1, bounds.BottomRight.Y + 1));
+            if (Backbuffer != null) {
+                g.DrawImageUnscaled(Backbuffer, bounds.TopLeft);
+            }
+        }
 
-            Brush black = Brushes.Black;
+        void Draw()
+        {
+            if (Backbuffer != null) {
+                using (var g = Graphics.FromImage(Backbuffer)) {
 
-            PointF scale = new PointF((float)bounds.Size.Width / (float)Points.Width, (float)bounds.Size.Height / (float)Points.Height);
+                    Pen pen = new Pen(Color.Black, 1);
+                    g.DrawLine(pen, new Point(bounds.TopLeft.X - 1, bounds.TopLeft.Y - 1), new Point(bounds.BottomRight.X + 1, bounds.TopLeft.Y - 1));
+                    g.DrawLine(pen, new Point(bounds.TopLeft.X - 1, bounds.TopLeft.Y - 1), new Point(bounds.TopLeft.X - 1, bounds.BottomRight.Y + 1));
+                    g.DrawLine(pen, new Point(bounds.BottomRight.X + 1, bounds.BottomRight.Y + 1), new Point(bounds.BottomRight.X + 1, bounds.TopLeft.Y - 1));
+                    g.DrawLine(pen, new Point(bounds.BottomRight.X + 1, bounds.BottomRight.Y + 1), new Point(bounds.TopLeft.X - 1, bounds.BottomRight.Y + 1));
 
-            foreach (Pixel point in Points.GetPixels(value: true)) {
-                int x = (int)((float)point.X * scale.X) + bounds.TopLeft.X;
-                int y = (int)((float)point.Y * scale.Y) + bounds.TopLeft.Y;
-                g.FillRectangle(black, x - 1, y - 1, (int)Math.Ceiling(scale.X) + 2, (int)Math.Ceiling(scale.Y) + 2);
+                    Brush black = Brushes.Black;
+
+                    PointF scale = new PointF((float)bounds.Size.Width / (float)Points.Width, (float)bounds.Size.Height / (float)Points.Height);
+
+                    foreach (Pixel point in Points.GetPixels(value: true)) {
+                        int x = (int)((float)point.X * scale.X) + bounds.TopLeft.X;
+                        int y = (int)((float)point.Y * scale.Y) + bounds.TopLeft.Y;
+                        g.FillRectangle(black, x - 1, y - 1, (int)Math.Ceiling(scale.X) + 2, (int)Math.Ceiling(scale.Y) + 2);
+                    }
+                }
             }
         }
     }

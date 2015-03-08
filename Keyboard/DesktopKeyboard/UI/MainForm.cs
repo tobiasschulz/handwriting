@@ -90,13 +90,17 @@ namespace DesktopKeyboard
                 previousDrawAreaChangeCounter = drawArea.ChangeCounter;
                 debugArea.Points = drawArea.Points.Trim().Normalize();
                 debugArea2.Points = drawArea.Points.Trim(test: true).Normalize();
-                this.Refresh();
+                //this.Refresh();
             }
         }
 
         void OnUpdate(object sender, EventArgs e)
         {
-            drawArea.OnUpdate();
+            bool invalidate = false;
+            drawArea.OnUpdate(invalidate: ref invalidate);
+            if (invalidate) {
+                Invalidate();
+            }
         }
 
         void OnPaint(object sender, PaintEventArgs e)

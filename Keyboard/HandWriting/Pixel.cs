@@ -30,7 +30,7 @@ using System.Runtime.InteropServices;
 namespace HandWriting
 {
     [StructLayout(LayoutKind.Sequential)]
-    public class Pixel
+    public struct Pixel
     {
         public static Pixel Zero { get { return new Pixel(0, 0); } }
 
@@ -117,7 +117,7 @@ namespace HandWriting
         public override bool Equals(object obj)
         {
             if (obj != null) {
-                Pixel other = obj as Pixel;
+                Pixel other = (Pixel)obj;
                 if (other != null) {
                     return Equals((Pixel)obj);
                 }

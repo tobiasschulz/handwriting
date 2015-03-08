@@ -76,7 +76,7 @@ namespace DesktopKeyboard
 
             if (resultPoints != null) {
                 PointF scale = new PointF((float)Width / (float)resultPoints.Width, (float)Height / (float)resultPoints.Height);
-                foreach (Pixel point in resultPoints.GetPixels(value: true)) {
+                foreach (BoundedPixel point in resultPoints.GetPixels(value: true)) {
                     int x = (int)((float)point.X * scale.X);
                     int y = (int)((float)point.Y * scale.Y);
                     g.FillRectangle(black, x, y, scale.X, scale.Y);

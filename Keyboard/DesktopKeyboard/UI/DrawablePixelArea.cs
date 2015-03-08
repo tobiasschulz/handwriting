@@ -49,13 +49,16 @@ namespace DesktopKeyboard
 
         private Point previousMousePosition;
 
-        public void OnUpdate()
+        public override void OnUpdate(ref bool invalidate)
         {
             Point currentMousePosition = Control.MousePosition;
             if (previousMousePosition != currentMousePosition) {
                 previousMousePosition = currentMousePosition;
                 OnMouseMove(currentMousePosition);
+                invalidate = true;
             }
+
+            base.OnUpdate(invalidate: ref invalidate);
         }
 
         private void OnLeftButtonUp(object sender, MouseEventArgs e)

@@ -75,9 +75,21 @@ namespace HandWriting
             this[pixel] = true;
         }
 
+        public void Add(BoundedPixel pixel)
+        {
+            this[pixel] = true;
+        }
+
         public void Add(IEnumerable<Pixel> pixels)
         {
             foreach (Pixel pixel in pixels) {
+                this[pixel] = true;
+            }
+        }
+
+        public void Add(IEnumerable<BoundedPixel> pixels)
+        {
+            foreach (BoundedPixel pixel in pixels) {
                 this[pixel] = true;
             }
         }
@@ -114,7 +126,7 @@ namespace HandWriting
             for (int y = 0; y < Height; ++y) {
                 for (int x = 0; x < Width; ++x) {
                     BoundedPixel p = new BoundedPixel(x, y, width: Width, height: Height);
-                    bool b = this[p];
+                    bool b = this[p.RawPixel];
                     if (b == value) {
                         yield return p;
                     }
@@ -133,9 +145,9 @@ namespace HandWriting
             int maxX = 0;
             int maxY = 0;
 
-            Pixel[] currentPixels = GetPixels(value: true).ToArray();
+            BoundedPixel[] currentPixels = GetPixels(value: true).ToArray();
 
-            foreach (Pixel pixel in currentPixels) {
+            foreach (BoundedPixel pixel in currentPixels) {
                 if (pixel.X < minX)
                     minX = pixel.X;
                 if (pixel.Y < minY)
@@ -182,7 +194,7 @@ namespace HandWriting
 
             PixelMap trimmed = new PixelMap(width: maxX - minX + 1, height: maxY - minY + 1);
 
-            foreach (Pixel pixel in currentPixels) {
+            foreach (BoundedPixel pixel in currentPixels) {
                 if (pixel.X >= minX && pixel.X <= maxX && pixel.Y >= minY && pixel.Y <= maxY) {
                     //Log.Debug("trimmed.Size=" + trimmed.Size + ", add=" + new Pixel(x: pixel.X - minX, y: pixel.Y - minY));
                     trimmed[new Pixel(x: pixel.X - minX, y: pixel.Y - minY)] = true;
@@ -238,7 +250,7 @@ namespace HandWriting
 
             int[] neighbors = new int[normalized.Width * normalized.Height];
 
-            Pixel[] normalizedPixelCombinations = PixelExtensions.PixelCombinations(width: normalized.Width, height: normalized.Height).ToArray();
+            BoundedPixel[] normalizedPixelCombinations = PixelExtensions.PixelCombinations(width: normalized.Width, height: normalized.Height).ToArray();
             foreach (BoundedPixel pixel in normalizedPixelCombinations) {
                 for (int dx = -1; dx <= 1; dx++) {
                     for (int dy = -1; dy <= 1; dy++) {

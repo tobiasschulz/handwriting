@@ -29,20 +29,30 @@ using System.Collections.Generic;
 
 namespace HandWriting
 {
-    public class BoundedPixel : Pixel
+    public struct BoundedPixel
     {
         public readonly int ParentWidth;
         public readonly int ParentHeight;
         public readonly int IndexInArray;
         public readonly bool IsInValidRange;
+        public Pixel RawPixel;
+
+        public int X { get { return RawPixel.X; } }
+
+        public int Y { get { return RawPixel.Y; } }
 
         public BoundedPixel(int x, int y, int width, int height)
-            : base(x: x, y: y)
         {
             ParentWidth = width;
             ParentHeight = height;
             IndexInArray = PixelExtensions.IndexInArray(x: x, y: y, width: width);
             IsInValidRange = x > 0 && y > 0 && x < width && y < height;
+            RawPixel = new Pixel(x, y);
+        }
+
+        public static implicit operator Pixel(BoundedPixel pixel)
+        {
+            return pixel.RawPixel;
         }
 
         public BoundedPixel ScaleTo(PixelMap otherMap)

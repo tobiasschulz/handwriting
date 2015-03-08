@@ -36,7 +36,7 @@ namespace HandWriting
             return y * width + x;
         }
 
-        public static IEnumerable<Pixel> PixelCombinations(int width, int height)
+        public static IEnumerable<BoundedPixel> PixelCombinations(int width, int height)
         {
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
