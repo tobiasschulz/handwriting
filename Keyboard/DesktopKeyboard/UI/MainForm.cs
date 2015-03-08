@@ -39,9 +39,9 @@ namespace DesktopKeyboard
         private Point windowLocation;
 
         private readonly DrawablePixelArea drawArea;
-        private readonly PixelArea debugArea;
+        private readonly PixelArea debugArea1;
         private readonly PixelArea debugArea2;
-        private uint previousDrawAreaChangeCounter;
+        private uint previousChangeCounter;
 
         public MainForm(Size size, Point location)
         {
@@ -50,11 +50,24 @@ namespace DesktopKeyboard
             windowLocation = location;
 
             drawArea = new DrawablePixelArea(reference: this, bounds: new RelativeBounds(reference: this, left: 20, top: 20, right: -520, bottom: -40));
-            debugArea = new PixelArea(reference: this, bounds: new RelativeBounds(reference: this, left: 260, top: 20, right: -260, bottom: -40));
+            Controls.Add(drawArea);
+            debugArea1 = new PixelArea(reference: this, bounds: new RelativeBounds(reference: this, left: 260, top: 20, right: -260, bottom: -40));
+            Controls.Add(debugArea1);
             debugArea2 = new PixelArea(reference: this, bounds: new RelativeBounds(reference: this, left: 520, top: 20, right: -20, bottom: -40));
+            Controls.Add(debugArea2);
 
             ResizeRedraw = true;
-            Paint += new PaintEventHandler(OnPaint);
+
+
+            Button button = new Button();
+            button.Location = new Point(2, 2);
+            button.Size = new Size(40, 20);
+            button.Text = "Reset";
+            Controls.Add(button);
+            button.Click += (s, e) => drawArea.Reset();
+            // button.MouseEnter += new EventHandler(OnEnter);
+
+            //Paint += new PaintEventHandler(OnPaint);
             // CenterToScreen();
 
             //DebugForm form = new DebugForm(size, new Point(location.X + size.Width + 20, location.Y), points);
@@ -69,7 +82,7 @@ namespace DesktopKeyboard
             Location = windowLocation;
 
             drawArea.Load();
-            debugArea.Load();
+            debugArea1.Load();
             debugArea2.Load();
 
             System.Windows.Forms.Timer frameTimer = new System.Windows.Forms.Timer();
@@ -86,25 +99,28 @@ namespace DesktopKeyboard
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (drawArea.ChangeCounter != previousDrawAreaChangeCounter) {
-                previousDrawAreaChangeCounter = drawArea.ChangeCounter;
-                debugArea.Points = drawArea.Points.Trim().Normalize();
+            if (drawArea.Points.ChangeCounter != previousChangeCounter) {
+                previousChangeCounter = drawArea.Points.ChangeCounter;
+                debugArea1.Points = drawArea.Points.Trim().Normalize();
                 debugArea2.Points = drawArea.Points.Trim(test: true).Normalize();
+
+                debugArea1.Draw();
+                debugArea2.Draw();
+
+                debugArea1.Invalidate();
+                debugArea2.Invalidate();
                 //this.Refresh();
             }
         }
 
         void OnUpdate(object sender, EventArgs e)
         {
-            bool invalidate = false;
-            drawArea.OnUpdate(invalidate: ref invalidate);
-            if (invalidate) {
-                Invalidate();
-            }
+            drawArea.OnUpdate();
         }
 
-        void OnPaint(object sender, PaintEventArgs e)
+        /*void OnPaint(object sender, PaintEventArgs e)
         {
+            base.OnPaint(e);
             using (Graphics g = e.Graphics) {
                 /*Pen pen = new Pen(Color.Black, 1);
                 pen.DashStyle = DashStyle.Dot;
@@ -117,13 +133,14 @@ namespace DesktopKeyboard
                 g.DrawLine(pen, 20, 160, 250, 160);
                 pen.DashPattern = new float[] { 6f, 8f, 1f, 1f, 1f, 1f, 1f, 1f };
                 g.DrawLine(pen, 20, 200, 250, 200);
-                pen.DashStyle = DashStyle.Dot;*/
+                pen.DashStyle = DashStyle.Dot;*
 
-                drawArea.OnPaint(g);
-                debugArea.OnPaint(g);
-                debugArea2.OnPaint(g);
+                // drawArea.OnPaint(g);
+                // debugArea1.OnPaint(g);
+                //debugArea2.OnPaint(g);
 
             }
         }
+*/
     }
 }

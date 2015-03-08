@@ -59,8 +59,8 @@ namespace DesktopKeyboard
             StartPosition = FormStartPosition.Manual;
             Size = windowSize;
             Location = windowLocation;
-            Console.WriteLine("windowSize: " + windowSize);
-            Console.WriteLine("windowLocation: " + windowLocation);
+            Log.Debug("windowSize: " + windowSize);
+            Log.Debug("windowLocation: " + windowLocation);
         }
 
         private void timer1_Tick(object sender, EventArgs e)

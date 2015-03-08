@@ -34,13 +34,15 @@ namespace HandWriting
 {
     public class PixelMap
     {
-        public static Pixel NORMALIZED_SIZE = new Pixel(10, 10);
+        public static Pixel NORMALIZED_SIZE = new Pixel(7, 7);
 
         public int Width { get; private set; }
 
         public int Height { get; private set; }
 
         private BitArray pixels;
+
+        public uint ChangeCounter { get; set; }
 
         public PixelMap(int width, int height)
         {
@@ -68,16 +70,19 @@ namespace HandWriting
         public void Set(int x, int y, bool value)
         {
             pixels[PixelExtensions.IndexInArray(x: x, y: y, width: Width)] = value;
+            ChangeCounter++;
         }
 
         public void Add(Pixel pixel)
         {
             this[pixel] = true;
+            ChangeCounter++;
         }
 
         public void Add(BoundedPixel pixel)
         {
             this[pixel] = true;
+            ChangeCounter++;
         }
 
         public void Add(IEnumerable<Pixel> pixels)
@@ -85,6 +90,7 @@ namespace HandWriting
             foreach (Pixel pixel in pixels) {
                 this[pixel] = true;
             }
+            ChangeCounter++;
         }
 
         public void Add(IEnumerable<BoundedPixel> pixels)
@@ -92,11 +98,13 @@ namespace HandWriting
             foreach (BoundedPixel pixel in pixels) {
                 this[pixel] = true;
             }
+            ChangeCounter++;
         }
 
         public void Remove(Pixel pixel)
         {
             this[pixel] = false;
+            ChangeCounter++;
         }
 
         public int CountPixels(bool value)
@@ -221,7 +229,7 @@ namespace HandWriting
                 }
                 pcSum += pc;
                 Log.Debug(description + ": threshold row: x=", x, ", pcSum=", pcSum, ", pc=", pc);
-                if (pcSum > treshold || pc > Math.Min(5, (dim2End - dim2Start) * 0.05)) {
+                if (pcSum > treshold || pc > Math.Min(4, (dim2End - dim2Start) * 0.05)) {
                     break;
                 }
                 dim1Start = x;

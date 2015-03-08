@@ -1,5 +1,5 @@
 ﻿//
-// Program.cs
+// NonBlockingConsole.cs
 //
 // Author:
 //       Tobias Schulz <tobiasschulz.code@outlook.de>
@@ -25,25 +25,29 @@
 // THE SOFTWARE.
 //
 using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Windows.Forms;
-using HandWriting;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace DesktopKeyboard
 {
-    public class Program
+    public static class NonBlockingConsole
     {
-        public static void Main()
+        private static readonly BlockingCollection<string> m_Queue = new BlockingCollection<string>();
+
+        static NonBlockingConsole()
         {
-            Log.LogHandler += (type, message) => NonBlockingConsole.WriteLine("[" + type + "] " + message);
+            var thread = new Thread(
+                             () => {
+                    while (true)
+                        Console.WriteLine(m_Queue.Take());
+                });
+            thread.IsBackground = true;
+            thread.Start();
+        }
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
-            Size size = new Size(width: 750, height: 270);
-            Point location = new Point(400, 450);
-            Application.Run(new MainForm(size, location));
+        public static void WriteLine(string value)
+        {
+            m_Queue.Add(value);
         }
     }
 }

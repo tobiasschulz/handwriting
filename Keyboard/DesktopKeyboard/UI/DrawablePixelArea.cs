@@ -35,35 +35,31 @@ namespace DesktopKeyboard
     {
         private Pixel previousPoint = Pixel.Zero;
 
-        public uint ChangeCounter { get; private set; }
-
         public DrawablePixelArea(Form reference, RelativeBounds bounds)
             : base(reference: reference, bounds: bounds)
         {
             Application.AddMessageFilter(new MouseMessageFilter());
             //MouseMessageFilter.MouseMove += new MouseEventHandler(OnMouseMove);
             MouseMessageFilter.LeftButtonUp += new MouseEventHandler(OnLeftButtonUp);
-
-            ChangeCounter = 1;
         }
 
         private Point previousMousePosition;
 
-        public override void OnUpdate(ref bool invalidate)
+        public override void OnUpdate()
         {
             Point currentMousePosition = Control.MousePosition;
             if (previousMousePosition != currentMousePosition) {
                 previousMousePosition = currentMousePosition;
                 OnMouseMove(currentMousePosition);
-                invalidate = true;
+                Invalidate();
             }
 
-            base.OnUpdate(invalidate: ref invalidate);
+            base.OnUpdate();
         }
 
         private void OnLeftButtonUp(object sender, MouseEventArgs e)
         {
-            Console.WriteLine("OnLeftButtonUp");
+            Log.Debug("OnLeftButtonUp");
             previousPoint = Pixel.Zero;
         }
 
@@ -71,25 +67,23 @@ namespace DesktopKeyboard
         {
             // Left button is down.
             if ((Control.MouseButtons & MouseButtons.Left) != 0) {
-                Pixel point = reference.PointToClient(mousePosition).ToPixel() - bounds.TopLeft.ToPixel();
-                Console.WriteLine("bounds.TopLeft:" + bounds.TopLeft + " point:" + point);
+                Pixel point = PointToClient(mousePosition).ToPixel();//- bounds.TopLeft.ToPixel();
+                Log.Debug("bounds.TopLeft:" + bounds.TopLeft + " point:" + point);
                 Pixel _previousPoint = previousPoint;
 
                 if (point.IsBetween(Pixel.Zero, Points.Size)) {
                     previousPoint = point;
 
-                    ChangeCounter++;
-
-                    if (false && _previousPoint != Pixel.Zero && (point - _previousPoint).Length < 500) {
+                    if (_previousPoint != Pixel.Zero && (point - _previousPoint).Length < 500) {
                         Pixel diff = _previousPoint - point;
                         int steps = Math.Max(diff.Absolute.X, diff.Absolute.Y);
-                        Console.WriteLine("steps: " + steps);
+                        Log.Debug("steps: " + steps);
                         double dx = 0, dy = 0;
-                        for (int step = 0; step <= steps; step++) {
+                        for (int step = 0; step <= steps + 1; step++) {
                             Pixel interPoint = new Pixel(_previousPoint.X + (int)Math.Round(dx), _previousPoint.Y + (int)Math.Round(dy));
                             if (interPoint.IsBetween(Pixel.Zero, Points.Size)) {
                                 Points.Add(interPoint.InMap(Points).Neighbors());
-                                Console.WriteLine("  " + interPoint.ToString());
+                                Log.Debug("  interPoint: ", interPoint, ", _previousPoint: ", _previousPoint, ", point: ", point);
                             } else {
                                 previousPoint = Pixel.Zero;
                                 break;
@@ -98,13 +92,13 @@ namespace DesktopKeyboard
                             dy += (double)diff.Y / (double)steps;
                         }
                         Points.Add(point.InMap(Points).Neighbors());
-                        Console.WriteLine(point.ToString());
+                        Log.Debug(point.ToString());
                     } else {
                         Points.Add(point.InMap(Points).Neighbors());
-                        Console.WriteLine(point.ToString());
+                        Log.Debug(point.ToString());
                     }
 
-                    reference.Refresh();
+                    //reference.Refresh();
                 } else {
                     previousPoint = Pixel.Zero;
                 }

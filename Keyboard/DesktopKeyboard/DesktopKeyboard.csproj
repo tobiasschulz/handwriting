@@ -39,6 +39,7 @@
     <Compile Include="UI\PixelArea.cs" />
     <Compile Include="UI\PixelExtensions.cs" />
     <Compile Include="UI\RelativeBounds.cs" />
+    <Compile Include="IO\NonBlockingConsole.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HandWriting\HandWriting.csproj">
@@ -54,5 +55,6 @@
   <ItemGroup>
     <Folder Include="Util\" />
     <Folder Include="UI\" />
+    <Folder Include="IO\" />
   </ItemGroup>
 </Project>
