@@ -33,8 +33,6 @@ namespace DesktopKeyboard
 {
     public class DrawablePixelArea : PixelArea
     {
-        private Pixel previousPoint = Pixel.Zero;
-
         public DrawablePixelArea(Form reference, RelativeBounds bounds)
             : base(reference: reference, bounds: bounds)
         {
@@ -56,6 +54,8 @@ namespace DesktopKeyboard
 
             base.OnUpdate();
         }
+
+        private Pixel previousPoint = Pixel.Zero;
 
         private void OnLeftButtonUp(object sender, MouseEventArgs e)
         {
@@ -102,43 +102,6 @@ namespace DesktopKeyboard
                 } else {
                     previousPoint = Pixel.Zero;
                 }
-            }
-        }
-
-        class MouseMessageFilter : IMessageFilter
-        {
-            public static event MouseEventHandler MouseMove = delegate { };
-            public static event MouseEventHandler LeftButtonUp = delegate { };
-            public static event MouseEventHandler LeftButtonDown = delegate { };
-
-            public bool PreFilterMessage(ref Message m)
-            {
-                if ((MouseMessages)m.Msg == MouseMessages.WM_MOUSEMOVE) {
-                    Point mousePosition = Control.MousePosition;
-                    MouseMove(null, new MouseEventArgs(
-                        MouseButtons.None, 0, mousePosition.X, mousePosition.Y, 0));
-                }
-                if ((MouseMessages)m.Msg == MouseMessages.WM_LBUTTONUP) {
-                    Point mousePosition = Control.MousePosition;
-                    LeftButtonUp(null, new MouseEventArgs(
-                        MouseButtons.None, 0, mousePosition.X, mousePosition.Y, 0));
-                }
-                if ((MouseMessages)m.Msg == MouseMessages.WM_LBUTTONDOWN) {
-                    Point mousePosition = Control.MousePosition;
-                    LeftButtonDown(null, new MouseEventArgs(
-                        MouseButtons.None, 0, mousePosition.X, mousePosition.Y, 0));
-                }
-                return false;
-            }
-
-            private enum MouseMessages
-            {
-                WM_LBUTTONDOWN = 0x0201,
-                WM_LBUTTONUP = 0x0202,
-                WM_MOUSEMOVE = 0x0200,
-                WM_MOUSEWHEEL = 0x020A,
-                WM_RBUTTONDOWN = 0x0204,
-                WM_RBUTTONUP = 0x0205
             }
         }
     }

@@ -1,5 +1,5 @@
 ﻿//
-// PixelExtensions.cs
+// Range.cs
 //
 // Author:
 //       Tobias Schulz <tobiasschulz.code@outlook.de>
@@ -25,26 +25,48 @@
 // THE SOFTWARE.
 //
 using System;
-using System.Drawing;
-using HandWriting;
+using System.Runtime.InteropServices;
 
 namespace DesktopKeyboard
 {
-    public static class PixelExtensions
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Range
     {
-        public static Point ToPoint(this Pixel p)
+        public static Range Zero { get { return new Range(0, 0); } }
+
+        public readonly double Min;
+        public readonly double Max;
+
+        public Range(double min, double max)
         {
-            return new Point(p.X, p.Y);
+            this.Min = min;
+            this.Max = max;
         }
 
-        public static Pixel ToPixel(this Point p)
+        public override string ToString()
         {
-            return new Pixel(p.X, p.Y);
+            return string.Format("({0}...{1})", Min, Max);
         }
 
-        public static Pixel ToPixel(this Size s)
+        public bool IsInRange(double value)
         {
-            return new Pixel(s.Width, s.Height);
+            return value >= Min && value <= Max;
+        }
+
+
+        public static bool operator ==(Range a, Range b)
+        {
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(Range a, Range b)
+        {
+            return !(a == b);
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)(Min * 97979797.0 + Max * 123);
         }
     }
 }

@@ -48,7 +48,7 @@ namespace HandWriting
         {
             Width = width;
             Height = height;
-            pixels = new BitArray(width * height);
+            pixels = new BitArray(width > 0 && height > 0 ? width * height : 1);
         }
 
         public Pixel Size { get { return new Pixel(Width, Height); } }

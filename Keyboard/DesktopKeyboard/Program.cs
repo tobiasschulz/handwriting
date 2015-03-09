@@ -36,14 +36,27 @@ namespace DesktopKeyboard
     {
         public static void Main()
         {
-            Log.LogHandler += (type, message) => NonBlockingConsole.WriteLine("[" + type + "] " + message);
+            Log.LogHandler += (type, message) => {
+                if (type == Log.Type.FATAL_ERROR) {
+                    MessageBox.Show(message, "Fatal Error");
+                    Application.Exit();
+                } else {
+                    NonBlockingConsole.WriteLine("[" + type + "] " + message);
+                }
+            };
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            Size size = new Size(width: 750, height: 270);
-            Point location = new Point(400, 450);
-            Application.Run(new MainForm(size, location));
+            if (false) {
+                Size size = new Size(width: 750, height: 270);
+                Point location = new Point(400, 450);
+                Application.Run(new MainForm(size, location));
+            } else {
+                Size size = new Size(width: 400, height: 420);
+                Point location = new Point(400, 325);
+                Application.Run(new TestForm(size, location));
+            }
         }
     }
 }

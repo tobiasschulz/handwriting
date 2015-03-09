@@ -1,5 +1,5 @@
 ﻿//
-// PixelExtensions.cs
+// CharacterCollection.cs
 //
 // Author:
 //       Tobias Schulz <tobiasschulz.code@outlook.de>
@@ -25,26 +25,37 @@
 // THE SOFTWARE.
 //
 using System;
-using System.Drawing;
-using HandWriting;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace DesktopKeyboard
 {
-    public static class PixelExtensions
+    public class CharacterCollection : IEnumerable<Character>
     {
-        public static Point ToPoint(this Pixel p)
+        Dictionary<string, Character> dict = new Dictionary<string, Character>();
+
+        GeoFormCollection forms;
+
+        public CharacterCollection(GeoFormCollection forms)
         {
-            return new Point(p.X, p.Y);
+            this.forms = forms;
         }
 
-        public static Pixel ToPixel(this Point p)
+        public void Add(Character item)
         {
-            return new Pixel(p.X, p.Y);
+            if (item.Initialize(forms)) {
+                dict[item.Name + ""] = item;
+            }
         }
 
-        public static Pixel ToPixel(this Size s)
+        public IEnumerator<Character> GetEnumerator()
         {
-            return new Pixel(s.Width, s.Height);
+            return dict.Values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 }

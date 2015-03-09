@@ -38,6 +38,11 @@ namespace HandWriting
             output(Type.DEBUG, messages);
         }
 
+        public static void FatalError(params object[] messages)
+        {
+            output(Type.FATAL_ERROR, messages);
+        }
+
         private static void output(Type type, params object[] messages)
         {
             string message = string.Join("", messages);
@@ -49,7 +54,8 @@ namespace HandWriting
             DEBUG,
             INFO,
             WARNING,
-            ERROR
+            ERROR,
+            FATAL_ERROR
         }
     }
 }

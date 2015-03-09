@@ -40,6 +40,14 @@
     <Compile Include="UI\PixelExtensions.cs" />
     <Compile Include="UI\RelativeBounds.cs" />
     <Compile Include="IO\NonBlockingConsole.cs" />
+    <Compile Include="Test\TestForm.cs" />
+    <Compile Include="Test\GeoArea.cs" />
+    <Compile Include="Test\GeoForms.cs" />
+    <Compile Include="Test\Range.cs" />
+    <Compile Include="Test\Character.cs" />
+    <Compile Include="Test\GeoFormCollection.cs" />
+    <Compile Include="Test\CharacterCollection.cs" />
+    <Compile Include="UI\MouseMessageFilter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HandWriting\HandWriting.csproj">
@@ -56,5 +64,6 @@
     <Folder Include="Util\" />
     <Folder Include="UI\" />
     <Folder Include="IO\" />
+    <Folder Include="Test\" />
   </ItemGroup>
 </Project>

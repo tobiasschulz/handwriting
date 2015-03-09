@@ -1,5 +1,5 @@
 ﻿//
-// PixelExtensions.cs
+// TestForm.cs
 //
 // Author:
 //       Tobias Schulz <tobiasschulz.code@outlook.de>
@@ -26,26 +26,47 @@
 //
 using System;
 using System.Drawing;
-using HandWriting;
+using System.Windows.Forms;
 
 namespace DesktopKeyboard
 {
-    public static class PixelExtensions
+    public class TestForm : Form, ISize
     {
-        public static Point ToPoint(this Pixel p)
+        private Size windowSize;
+        private Point windowLocation;
+        private GeoArea formArea;
+
+        public TestForm(Size size, Point location)
         {
-            return new Point(p.X, p.Y);
+            Load += TestForm_Load;
+            windowSize = size;
+            windowLocation = location;
+
+            formArea = new GeoArea(reference: this, bounds: new RelativeBounds(reference: this, left: 20, top: 20, right: -20, bottom: -40));
         }
 
-        public static Pixel ToPixel(this Point p)
+        private void TestForm_Load(object sender, EventArgs e)
         {
-            return new Pixel(p.X, p.Y);
+            Text = "Keyboard";
+            StartPosition = FormStartPosition.Manual;
+            Size = windowSize;
+            Location = windowLocation;
+
+            formArea.Load();
+
+            System.Windows.Forms.Timer frameTimer = new System.Windows.Forms.Timer();
+            frameTimer.Interval = 1000 / 60;
+            frameTimer.Tick += OnUpdate;
+            frameTimer.Start();
+
+
         }
 
-        public static Pixel ToPixel(this Size s)
+        void OnUpdate(object sender, EventArgs e)
         {
-            return new Pixel(s.Width, s.Height);
+            formArea.OnUpdate();
         }
+
     }
 }
 

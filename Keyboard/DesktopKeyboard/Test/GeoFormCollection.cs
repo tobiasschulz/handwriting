@@ -1,5 +1,5 @@
 ﻿//
-// PixelExtensions.cs
+// GeoFormCollection.cs
 //
 // Author:
 //       Tobias Schulz <tobiasschulz.code@outlook.de>
@@ -25,26 +25,42 @@
 // THE SOFTWARE.
 //
 using System;
-using System.Drawing;
-using HandWriting;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace DesktopKeyboard
 {
-    public static class PixelExtensions
+    public class GeoFormCollection : IEnumerable<GeoForm>
     {
-        public static Point ToPoint(this Pixel p)
+        Dictionary<string, GeoForm> dict = new Dictionary<string, GeoForm>();
+
+        public GeoFormCollection()
         {
-            return new Point(p.X, p.Y);
         }
 
-        public static Pixel ToPixel(this Point p)
+        public void Add(GeoForm item)
         {
-            return new Pixel(p.X, p.Y);
+            dict[item.Name] = item;
         }
 
-        public static Pixel ToPixel(this Size s)
+        public bool Contains(string formName)
         {
-            return new Pixel(s.Width, s.Height);
+            return dict.ContainsKey(formName);
+        }
+
+        public GeoForm Get(string formName)
+        {
+            return dict[formName];
+        }
+
+        public IEnumerator<GeoForm> GetEnumerator()
+        {
+            return dict.Values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 }
